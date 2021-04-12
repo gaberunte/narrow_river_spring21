@@ -10,20 +10,27 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(here)
 library(tidyverse)
+library(phyloseq)
 ```
 
 Here, we are going to start trying to look at the data and see where that goes. 
 
 ```{r read in files}
 asvs_counts = read_tsv(here("data", "ASVs_counts.tsv"))
-```
+rownames(asvs_counts) = asvs_counts$X1
+asvs_counts.renamed = asvs_counts[,2:length(asvs_counts[1,])]
+rownames(asvs_counts.renamed) = rownames(asvs_counts)
 
-```{r}
+
 asvs_taxonomy = read_tsv(here("data", "ASVs_taxonomy.tsv"))
+Metadata = read_csv(here("data", "Narragansett_Metadata.csv"))
 ```
 
 ```{r}
-Metadata = read_csv(here("data", "Narragansett_Metadata.txt"))
+phy.otu = otu_table(asvs_counts.renamed, taxa_are_rows = TRUE)
+phy.meta = sample_data(Metadata)
+sample_names(phy.meta) = Metadata$SampleNo
+narrow.phy = phyloseq(phy.otu, phy.meta)
+
 ```
-
-
+Tell phyloseq what the name of the sample is in the metadata and try to get the phyloseq() object to run smoothly. 
