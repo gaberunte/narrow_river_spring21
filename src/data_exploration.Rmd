@@ -16,15 +16,14 @@ Here, we are going to start trying to look at the data and see where that goes.
 
 ```{r read in files}
 asvs_counts = read_tsv(here("data", "ASVs_counts.tsv"))
-
 ```
 
 ```{r}
-
+asvs_taxonomy = read_tsv(here("data", "ASVs_taxonomy.tsv"))
 ```
 
 ```{r}
-
+Metadata = read_csv(here("data", "Narragansett_Metadata.txt"))
 ```
 
 
