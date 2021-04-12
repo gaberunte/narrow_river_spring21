@@ -1,0 +1,30 @@
+---
+title: "Data Exploration"
+author: "Gabe Runte"
+date: "4/12/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(here)
+library(tidyverse)
+```
+
+Here, we are going to start trying to look at the data and see where that goes. 
+
+```{r read in files}
+asvs_counts = read_tsv(here("data", "ASVs_counts.tsv"))
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
