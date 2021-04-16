@@ -23,7 +23,9 @@ rownames(asvs_counts.renamed) = rownames(asvs_counts)
 
 
 asvs_taxonomy = read_tsv(here("data", "ASVs_taxonomy.tsv"))
-Metadata = read_csv(here("data", "Narragansett_Metadata.csv"))
+Metadata = read_csv(here("data", "testsamples_df.csv"))
+Metadata.renamed = Metadata[,2:length(Metadata[0,])]
+rownames(Metadata.renamed)<- Metadata$SampleNo
 ```
 
 ```{r}
@@ -33,4 +35,9 @@ sample_names(phy.meta) = Metadata$SampleNo
 narrow.phy = phyloseq(phy.otu, phy.meta)
 
 ```
-Tell phyloseq what the name of the sample is in the metadata and try to get the phyloseq() object to run smoothly. 
+Tell phyloseq what the name of the sample is in the metadata and try to get the phyloseq() object to run smoothly.
+
+```{r}
+  sample_variables(narrow.phy)
+```
+
