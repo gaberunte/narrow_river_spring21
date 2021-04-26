@@ -75,7 +75,7 @@ narrow.mds.all <- metaMDS(narrow.dist.all, distance = "bray", k=2, trymax = 1000
 ```
 
 ```{r switch otu to rra}
-meta.narrow = transform_sample_counts(meta.narrow, function(x) x/sum(x))
+#meta.narrow = transform_sample_counts(meta.narrow, function(x) x/sum(x))
 
 ```
 
@@ -109,15 +109,24 @@ data.scores.all$Nanodop_260230 <- narrow.phy@sam_data[["Nanodrop_260230"]]
 ```{r}
 
  ggplot(data.scores.all) +
-  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Temperature)), size =3) +
-  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Temperature)), size =3) +
-  facet_grid(Location~ Year)
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Year),  color= as.factor(Year)), size =3) +
+facet_wrap(~Location)
   
  
 
-
+ ggplot(data.scores.all) +
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Year),  color= Temperature), size =3) 
 
   
 ```
 
+```{r}
+#does temperature drive dissimilarity  > NO
+narrow.diss = phyloseq::distance(narrow.phy, method = "bray")
+narrow.perm = adonis(narrow.diss~ sample_data(narrow.phy)$Depth+sample_data(narrow.phy)$Temp+sample_data(narrow.phy)$Year, data=Metadata )
+
+narrow.perm$aov.tab
+
+
+```
 
