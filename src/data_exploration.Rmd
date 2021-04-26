@@ -8,9 +8,13 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-library(here)
 library(tidyverse)
 library(phyloseq)
+library(metagenomeSeq)
+library(vegan)
+library(here)
+library(janitor)
+library(gridExtra)
 ```
 
 Here, we are going to start trying to look at the data and see where that goes. 
@@ -37,7 +41,83 @@ narrow.phy = phyloseq(phy.otu, phy.meta)
 ```
 Tell phyloseq what the name of the sample is in the metadata and try to get the phyloseq() object to run smoothly.
 
-```{r}
-  sample_variables(narrow.phy)
+```{r load function metagenome}
+make_metagenomeSeq = function(physeq) {
+  require("metagenomeSeq")
+  require("phyloseq")
+  # Enforce orientation
+  if (!taxa_are_rows(physeq)) {
+    physeq <- t(physeq)}
+  OTU = as(otu_table(physeq), "matrix")
+  # Convert sample_data to AnnotatedDataFrame
+  ADF = AnnotatedDataFrame(data.frame(sample_data(physeq)))
+  # define dummy 'feature' data for OTUs, using their name Helps with
+  # extraction and relating to taxonomy later on.
+  TDF = AnnotatedDataFrame(data.frame(OTUname = taxa_names(physeq), row.names = taxa_names(physeq)))
+  # Create the metagenomeSeq object
+  MGS = newMRexperiment(counts = OTU, phenoData = ADF, featureData = TDF)
+  # Trigger metagenomeSeq to calculate its Cumulative Sum scaling factor.
+  MGS = cumNorm(MGS)
+  return(MGS)
+}
 ```
+
+```{r}
+meta.narrow <- make_metagenomeSeq(narrow.phy)
+```
+```{r prepare and run MDS, message=FALSE, echo=false}
+meta.narrow.all<-meta.narrow
+narrow.css.all <-MRcounts(meta.narrow.all, norm= TRUE, log= TRUE)
+narrow.csst.all <- t(narrow.css.all)
+narrow.dist.all <- vegdist(narrow.csst.all, method= "bray", binary=FALSE, diag=TRUE, upper=TRUE)
+set.seed(209)
+narrow.mds.all <- metaMDS(narrow.dist.all, distance = "bray", k=2, trymax = 1000)
+```
+
+```{r switch otu to rra}
+meta.narrow = transform_sample_counts(meta.narrow, function(x) x/sum(x))
+
+```
+
+```{r building data.scores, message=FALSE}
+data.scores.all <- as.data.frame(scores(narrow.mds.all))
+data.scores.all$sample <- rownames(data.scores.all)
+
+data.scores.all$Year.Station<-narrow.phy@sam_data[["Year.Station"]]
+data.scores.all$Year<-narrow.phy@sam_data[["Year"]]
+data.scores.all$Location<-narrow.phy@sam_data[["LocnDescriptor"]]
+data.scores.all$LocationNumber<-narrow.phy@sam_data[["LocnNumber.NtoS"]]
+data.scores.all$Longitude_N <- narrow.phy@sam_data[["Long-N"]]
+data.scores.all$Lattitude_W <- narrow.phy@sam_data[["Lat-W"]]
+data.scores.all$Depth <- narrow.phy@sam_data[["Depth"]]
+data.scores.all$Temperature <-  narrow.phy@sam_data[["Temp"]]
+data.scores.all$Cond <- narrow.phy@sam_data[["Cond"]]
+data.scores.all$Sal <- narrow.phy@sam_data[["Sal"]]
+data.scores.all$DO_pct <- narrow.phy@sam_data[["DO_pct"]]
+data.scores.all$DO_mgl <- narrow.phy@sam_data[["DO_mgL"]]
+data.scores.all$Chl_a <- narrow.phy@sam_data[["chl-a"]]
+data.scores.all$LiveWater <- narrow.phy@sam_data[["LiveWater"]]
+data.scores.all$Lugols <- narrow.phy@sam_data[["Lugols"]]
+data.scores.all$Glut <- narrow.phy@sam_data[["Glut"]]
+data.scores.all$Fv_Fm <- narrow.phy@sam_data[["Fv/Fm"]]
+data.scores.all$Nanodrop_conc <- narrow.phy@sam_data[["Nanodrop_conc"]]
+data.scores.all$Nanodrop_260280 <- narrow.phy@sam_data[["Nanodrop_260280"]]
+data.scores.all$Nanodop_260230 <- narrow.phy@sam_data[["Nanodrop_260230"]]
+
+```
+
+```{r}
+
+ ggplot(data.scores.all) +
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Temperature)), size =3) +
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Temperature)), size =3) +
+  facet_grid(Location~ Year)
+  
+ 
+
+
+
+  
+```
+
 
