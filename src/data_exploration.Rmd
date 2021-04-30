@@ -107,13 +107,12 @@ data.scores.all$Nanodop_260230 <- narrow.phy@sam_data[["Nanodrop_260230"]]
 ```
 
 ```{r}
-
+#Location and Year
  ggplot(data.scores.all) +
   geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Year),  color= as.factor(Year)), size =3) +
 facet_wrap(~Location)
   
- 
-
+ #Temp and Year
  ggplot(data.scores.all) +
   geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Year),  color= Temperature), size =3) 
 
@@ -121,12 +120,51 @@ facet_wrap(~Location)
 ```
 
 ```{r}
-#does temperature drive dissimilarity  > NO
+#Shallow river samples were taken at lower depths  
+ggplot(data.scores.all) +
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Location),  color= Location), size =3) +
+facet_wrap(~Depth)
+```
+
+```{r}
+#Drop in Depth = drop in Temp
+ggplot(data.scores.all) +
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Location),  color= Temperature), size =3) +
+facet_wrap(~Depth)
+```
+
+
+
+
+```{r}
+#does temperature drive dissimilarity  
 narrow.diss = phyloseq::distance(narrow.phy, method = "bray")
 narrow.perm = adonis(narrow.diss~ sample_data(narrow.phy)$Depth+sample_data(narrow.phy)$Temp+sample_data(narrow.phy)$Year, data=Metadata )
-
 narrow.perm$aov.tab
+```
 
 
+```{r}
+#does LocnDescriptor drive dissimilarity  
+narrow.diss = phyloseq::distance(narrow.phy, method = "bray")
+narrow.perm = adonis(narrow.diss~ sample_data(narrow.phy)$LocnDescriptor, data=Metadata )
+narrow.perm$aov.tab
+```
+
+
+```{r}
+#LiveWater messing things up?
+narrow.diss = phyloseq::distance(narrow.phy, method = "bray")
+narrow.perm = adonis(narrow.diss~ sample_data(narrow.phy)$LiveWater+sample_data(narrow.phy)$Year, data=Metadata )
+narrow.perm$aov.tab
+```
+
+
+```{r}
+#Temp, Year, Depth and LocnDescriptor account for almost everything outside of LiveWater
+narrow.diss = phyloseq::distance(narrow.phy, method = "bray")
+narrow.perm = adonis(narrow.diss~ sample_data(narrow.phy)$Depth+sample_data(narrow.phy)$Temp+sample_data(narrow.phy)$LocnDescriptor+sample_data(narrow.phy)$Year, data=Metadata )
+narrow.perm$aov.tab
+```
 ```
 
