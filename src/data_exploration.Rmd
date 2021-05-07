@@ -158,6 +158,57 @@ data.scores.all$Nanodop_260230 <- narrow.phy@sam_data[["Nanodrop_260230"]]
 ```
 
 ```{r}
+ds.15 <- as.data.frame(scores(phy.15.mds.all))
+ds.15$sample <- rownames(ds.15)
+
+ds.15$Year.Station<-phy.15@sam_data[["Year.Station"]]
+ds.15$Year<-phy.15@sam_data[["Year"]]
+ds.15$Location<-phy.15@sam_data[["LocnDescriptor"]]
+ds.15$LocationNumber<-phy.15@sam_data[["LocnNumber.NtoS"]]
+ds.15$Longitude_N <- phy.15@sam_data[["Long-N"]]
+ds.15$Lattitude_W <- phy.15@sam_data[["Lat-W"]]
+ds.15$Depth <- phy.15@sam_data[["Depth"]]
+ds.15$Temperature <-  phy.15@sam_data[["Temp"]]
+ds.15$Cond <- phy.15@sam_data[["Cond"]]
+ds.15$Sal <- phy.15@sam_data[["Sal"]]
+ds.15$DO_pct <- phy.15@sam_data[["DO_pct"]]
+ds.15$DO_mgl <- phy.15@sam_data[["DO_mgL"]]
+ds.15$Chl_a <- phy.15@sam_data[["chl-a"]]
+ds.15$LiveWater <- phy.15@sam_data[["LiveWater"]]
+ds.15$Lugols <- phy.15@sam_data[["Lugols"]]
+ds.15$Glut <- phy.15@sam_data[["Glut"]]
+ds.15$Fv_Fm <- phy.15@sam_data[["Fv/Fm"]]
+ds.15$Nanodrop_conc <- phy.15@sam_data[["Nanodrop_conc"]]
+ds.15$Nanodrop_260280 <- phy.15@sam_data[["Nanodrop_260280"]]
+ds.15$Nanodop_260230 <- phy.15@sam_data[["Nanodrop_260230"]]
+
+ds.16 <- as.data.frame(scores(phy.16.mds.all))
+ds.16$sample <- rownames(ds.16)
+
+ds.16$Year.Station<-phy.16@sam_data[["Year.Station"]]
+ds.16$Year<-phy.16@sam_data[["Year"]]
+ds.16$Location<-phy.16@sam_data[["LocnDescriptor"]]
+ds.16$LocationNumber<-phy.16@sam_data[["LocnNumber.NtoS"]]
+ds.16$Longitude_N <- phy.16@sam_data[["Long-N"]]
+ds.16$Lattitude_W <- phy.16@sam_data[["Lat-W"]]
+ds.16$Depth <- phy.16@sam_data[["Depth"]]
+ds.16$Temperature <-  phy.16@sam_data[["Temp"]]
+ds.16$Cond <- phy.16@sam_data[["Cond"]]
+ds.16$Sal <- phy.16@sam_data[["Sal"]]
+ds.16$DO_pct <- phy.16@sam_data[["DO_pct"]]
+ds.16$DO_mgl <- phy.16@sam_data[["DO_mgL"]]
+ds.16$Chl_a <- phy.16@sam_data[["chl-a"]]
+ds.16$LiveWater <- phy.16@sam_data[["LiveWater"]]
+ds.16$Lugols <- phy.16@sam_data[["Lugols"]]
+ds.16$Glut <- phy.16@sam_data[["Glut"]]
+ds.16$Fv_Fm <- phy.16@sam_data[["Fv/Fm"]]
+ds.16$Nanodrop_conc <- phy.16@sam_data[["Nanodrop_conc"]]
+ds.16$Nanodrop_260280 <- phy.16@sam_data[["Nanodrop_260280"]]
+ds.16$Nanodop_260230 <- phy.16@sam_data[["Nanodrop_260230"]]
+```
+
+
+```{r}
 #Location and Year
  ggplot(data.scores.all) +
   geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Year),  color= as.factor(Year)), size =3) +
