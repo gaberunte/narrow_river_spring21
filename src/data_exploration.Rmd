@@ -40,9 +40,9 @@ meta_15 = Metadata %>%
   filter(Year == "2015")
 meta_16 = Metadata %>%
   filter(Year == "2016")
-asvs_15 = asvs_counts.renamed[,colnames(asvs_counts.renamed) %in% meta.15$SampleNo]
+asvs_15 = asvs_counts.renamed[,colnames(asvs_counts.renamed) %in% meta_15$SampleNo]
 rownames(asvs_15) = asvs_taxonomy$X1
-asvs_16 = asvs_counts.renamed[,colnames(asvs_counts.renamed) %in% meta.16$SampleNo]
+asvs_16 = asvs_counts.renamed[,colnames(asvs_counts.renamed) %in% meta_16$SampleNo]
 rownames(asvs_16) = asvs_taxonomy$X1
 tax_15 = asvs_taxonomy.renamed[rownames(asvs_taxonomy.renamed) %in% rownames(asvs_15),]
 rownames(tax_15) = rownames(asvs_taxonomy)
@@ -97,6 +97,8 @@ make_metagenomeSeq = function(physeq) {
 
 ```{r}
 meta.narrow <- make_metagenomeSeq(narrow.phy)
+meta_phy.15 <- make_metagenomeSeq(phy.15)
+meta_phy.16 <- make_metagenomeSeq(phy.16)
 ```
 ```{r prepare and run MDS, message=FALSE, echo=false}
 meta.narrow.all<-meta.narrow
@@ -105,6 +107,22 @@ narrow.csst.all <- t(narrow.css.all)
 narrow.dist.all <- vegdist(narrow.csst.all, method= "bray", binary=FALSE, diag=TRUE, upper=TRUE)
 set.seed(209)
 narrow.mds.all <- metaMDS(narrow.dist.all, distance = "bray", k=2, trymax = 1000)
+
+meta.phy.15<-meta_phy.15
+phy.15.css.all <-MRcounts(meta.phy.15, norm= TRUE, log= TRUE)
+phy.15.css.all <- t(phy.15.css.all)
+phy.15.dist.all <- vegdist(phy.15.css.all, method= "bray", binary=FALSE, diag=TRUE, upper=TRUE)
+set.seed(209)
+phy.15.mds.all <- metaMDS(phy.15.dist.all, distance = "bray", k=2, trymax = 1000)
+
+meta.phy.16<-meta_phy.16
+phy.16.css.all <-MRcounts(meta.phy.16, norm= TRUE, log= TRUE)
+phy.16.css.all <- t(phy.16.css.all)
+phy.16.dist.all <- vegdist(phy.16.css.all, method= "bray", binary=FALSE, diag=TRUE, upper=TRUE)
+set.seed(209)
+phy.16.mds.all <- metaMDS(phy.16.dist.all, distance = "bray", k=2, trymax = 1000)
+
+
 ```
 
 ```{r switch otu to rra}
