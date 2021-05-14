@@ -207,7 +207,7 @@ ds.16$Nanodrop_260280 <- phy.16@sam_data[["Nanodrop_260280"]]
 ds.16$Nanodop_260230 <- phy.16@sam_data[["Nanodrop_260230"]]
 ```
 
-
+Graphs
 ```{r}
 #Location and Year
  ggplot(data.scores.all) +
@@ -240,7 +240,7 @@ plot_bar(narrow.phy, fill ="class")
 ```
 
 
-
+Dissimilarity Drivers for both Years
 ```{r}
 #does temperature drive dissimilarity  
 narrow.diss = phyloseq::distance(narrow.phy, method = "bray")
@@ -268,8 +268,52 @@ narrow.perm$aov.tab
 ```{r}
 #Temp, Year, Depth and LocnDescriptor (seems to co=vary with depth) account for almost everything outside of LiveWater
 narrow.diss = phyloseq::distance(narrow.phy, method = "bray")
-narrow.perm = adonis(narrow.diss~ sample_data(narrow.phy)$Depth+sample_data(narrow.phy)$Temp+sample_data(narrow.phy)$Year+sample_data(narrow.phy)$DO_pct, data=Metadata )
+narrow.perm = adonis(narrow.diss~ sample_data(narrow.phy)$Depth+sample_data(narrow.phy)$Temp+sample_data(narrow.phy)$Year+sample_data(narrow.phy)$Cond, data=Metadata )
 narrow.perm$aov.tab
 ```
+
+year 15 all
+```{r}
+narrow.diss = phyloseq::distance(phy.15, method = "bray")
+narrow.perm = adonis(narrow.diss~ sample_data(phy.15)$Depth+sample_data(phy.15)$Temp+sample_data(phy.15)$LocnDescriptor+sample_data(phy.15)$DO_pct+sample_data(phy.15)$Cond+sample_data(phy.15)$Sal+sample_data(phy.15)$DO_mgL+sample_data(phy.15)$"chl-a"+sample_data(phy.15)$Lugols+sample_data(phy.15)$Glut, data=Metadata )
+narrow.perm$aov.tab
+
+# see an increase in Location, Depth, and Cond, drop in Temp from both years combined
 ```
+
+Main Drivers Year 15
+```{r}
+#Main drivers (Location, Depth, and Cond)
+narrow.diss = phyloseq::distance(phy.15, method = "bray")
+narrow.perm = adonis(narrow.diss~ sample_data(phy.15)$Depth+sample_data(phy.15)$LocnDescriptor+sample_data(phy.15)$Cond, data=Metadata )
+narrow.perm$aov.tab
+
+```
+
+Year 16 all
+```{r}
+narrow.diss = phyloseq::distance(phy.16, method = "bray")
+narrow.perm = adonis(narrow.diss~ sample_data(phy.16)$Depth+sample_data(phy.16)$Temp+sample_data(phy.16)$LocnDescriptor+sample_data(phy.16)$DO_pct+sample_data(phy.16)$Cond+sample_data(phy.16)$Sal+sample_data(phy.16)$DO_mgL+sample_data(phy.16)$Lugols+sample_data(phy.16)$Glut+sample_data(phy.16)$Nanodrop_conc+sample_data(phy.16)$Nanodrop_260280+sample_data(phy.16)$Nanodrop_260230, data=Metadata )
+narrow.perm$aov.tab
+
+# Location and Depth are big drivers, temp drops off similarily to year 15. 
+# Do_pct is significantly larger driver than in year 15
+```
+
+year 16 nanodrops
+```{r}
+#Nanodrops make up about 1/4 of R2 
+narrow.diss = phyloseq::distance(phy.16, method = "bray")
+narrow.perm = adonis(narrow.diss~ sample_data(phy.16)$Nanodrop_conc+sample_data(phy.16)$Nanodrop_260280+sample_data(phy.16)$Nanodrop_260230, data=Metadata )
+narrow.perm$aov.tab
+```
+
+
+Main Drivers Year 16
+```{r}
+narrow.diss = phyloseq::distance(phy.16, method = "bray")
+narrow.perm = adonis(narrow.diss~ sample_data(phy.16)$Depth+sample_data(phy.16)$Temp+sample_data(phy.16)$LocnDescriptor+sample_data(phy.16)$DO_pct+sample_data(phy.16)$Cond, data=Metadata )
+narrow.perm$aov.tab
+```
+
 
