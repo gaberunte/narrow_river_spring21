@@ -337,8 +337,15 @@ Year 15 graphs
 
 
 ```{r}
+
+ds.16 = ds.16 %>% 
+  mutate(loc_spaced = NaN)
+for(i in 1:length(ds.16$loc_spaced)){
+  if(ds.16$Location[i]== "ShallowRiver"){ds.16$loc_spaced[i]<- "Shallow River"}else{if(ds.16$Location[i]== "LowerBasin"){ds.16$loc_spaced[i]<- "Lower Basin"} else{ds.16$loc_spaced[i]<- "Upper Basin"}}
+}
+
 ggplot(ds.16) +
-  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Location),  color= Sal), size =3) + facet_wrap(~Location) + theme_bw() +  labs(title = "Narrow River NMDS Plot",                                                                        subtitle = "",
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(loc_spaced),  color= Sal), size =3) + facet_wrap(~loc_spaced) + theme_bw() +  labs(title = "Narrow River NMDS Plot",                                                                        subtitle = "",
        tag = "Figure 1",
        x = "NMDS1",
        y = "NMDS2",
