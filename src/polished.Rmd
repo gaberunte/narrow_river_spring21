@@ -1,0 +1,68 @@
+---
+title: "Nick's Narrow River Project"
+author: "Gabe Runte"
+date: "5/25/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(phyloseq)
+library(metagenomeSeq)
+library(vegan)
+library(here)
+library(janitor)
+library(gridExtra)
+```
+
+
+# Some big text
+## some smaller text
+
+some regular sized text
+```{r}
+load(here("data", "savespace.RData"))
+```
+
+```{r}
+
+ds.16 = ds.16 %>% 
+  mutate(loc_spaced = NaN)
+for(i in 1:length(ds.16$loc_spaced)){
+  if(ds.16$Location[i]== "ShallowRiver"){ds.16$loc_spaced[i]<- "Shallow River"}else{if(ds.16$Location[i]== "LowerBasin"){ds.16$loc_spaced[i]<- "Lower Basin"} else{ds.16$loc_spaced[i]<- "Upper Basin"}}
+}
+
+ggplot(ds.16) +
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(loc_spaced),  color= Sal), size =3) + facet_wrap(~loc_spaced) + theme_bw() +  labs(title = "Narrow River NMDS Plot",                                                                        subtitle = "",
+       tag = "Figure 1",
+       x = "NMDS1",
+       y = "NMDS2",
+       shape = "Location",
+       color = "Salinity") + theme(plot.title = element_text(hjust = 0.5))
+      
+ 
+  
+  
+```
+
+```{r}
+narrow.diss = phyloseq::distance(phy.16, method = "bray")
+narrow.perm = adonis2(narrow.diss~ sample_data(phy.16)$Depth+sample_data(phy.16)$Temp+sample_data(phy.16)$LocnDescriptor+sample_data(phy.16)$Sal, data=Metadata )
+narrow.aov = tibble(narrow.perm)
+
+
+library(kableExtra)
+dt <- narrow.perm 
+rownames(dt) <- c("Depth", "Temperature", "Location", "Salinity", "Residuals", "Total")
+colnames(dt)
+    
+    
+  kbl(dt) %>%
+  kable_styling(bootstrap_options = c("striped",  "hover"))
+  
+   
+    
+
+            
+```

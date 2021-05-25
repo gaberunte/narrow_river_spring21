@@ -107,14 +107,20 @@ narrow.csst.all <- t(narrow.css.all)
 narrow.dist.all <- vegdist(narrow.csst.all, method= "bray", binary=FALSE, diag=TRUE, upper=TRUE)
 set.seed(209)
 narrow.mds.all <- metaMDS(narrow.dist.all, distance = "bray", k=2, trymax = 1000)
+```
 
+
+```{r prepare and run MDS 2, message=FALSE, echo=false}
 meta.phy.15<-meta_phy.15
 phy.15.css.all <-MRcounts(meta.phy.15, norm= TRUE, log= TRUE)
 phy.15.css.all <- t(phy.15.css.all)
 phy.15.dist.all <- vegdist(phy.15.css.all, method= "bray", binary=FALSE, diag=TRUE, upper=TRUE)
 set.seed(209)
 phy.15.mds.all <- metaMDS(phy.15.dist.all, distance = "bray", k=2, trymax = 1000)
+```
 
+
+```{r prepare and run MDS 3, message=FALSE, echo=false}
 meta.phy.16<-meta_phy.16
 phy.16.css.all <-MRcounts(meta.phy.16, norm= TRUE, log= TRUE)
 phy.16.css.all <- t(phy.16.css.all)
@@ -359,13 +365,17 @@ ggplot(ds.16) +
 
 ```{r}
 narrow.diss = phyloseq::distance(phy.16, method = "bray")
-narrow.perm = adonis(narrow.diss~ sample_data(phy.16)$Depth+sample_data(phy.16)$Temp+sample_data(phy.16)$LocnDescriptor+sample_data(phy.16)$Sal, data=Metadata )
-narrow.perm$aov.tab 
+narrow.perm = adonis2(narrow.diss~ sample_data(phy.16)$Depth+sample_data(phy.16)$Temp+sample_data(phy.16)$LocnDescriptor+sample_data(phy.16)$Sal, data=Metadata )
+narrow.aov = tibble(narrow.perm)
+
 
 library(kableExtra)
-dt <- narrow.perm$aov.tab
-  dt %>%
-  kbl() %>%
+dt <- narrow.perm 
+rownames(dt) <- c("Depth", "Temperature", "Location", "Salinity", "Residuals", "Total")
+colnames(dt)
+    
+    
+  kbl(dt) %>%
   kable_styling(bootstrap_options = c("striped",  "hover"))
   
    
