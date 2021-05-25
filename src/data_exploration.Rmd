@@ -235,9 +235,23 @@ ggplot(data.scores.all) +
 facet_wrap(~Depth)
 ```
 
+
+
+
+Class Bar Plots 
 ```{r}
-plot_bar(narrow.phy, fill ="class")
+plot_bar(narrow.phy, fill ="class") +
+ geom_bar(aes(color=class, fill=class), stat="identity", position="stack")
 ```
+
+```{r}
+plot_bar(phy.15, fill ="class") +geom_bar(aes(color=class, fill=class), stat="identity", position="stack")
+```
+
+```{r}
+plot_bar(phy.16, fill ="class") + geom_bar(aes(color=class, fill=class), stat="identity", position="stack")
+```
+
 
 
 Dissimilarity Drivers for both Years
@@ -272,10 +286,13 @@ narrow.perm = adonis(narrow.diss~ sample_data(narrow.phy)$Depth+sample_data(narr
 narrow.perm$aov.tab
 ```
 
-year 15 all
+
+
+
+year 15 all drivers
 ```{r}
 narrow.diss = phyloseq::distance(phy.15, method = "bray")
-narrow.perm = adonis(narrow.diss~ sample_data(phy.15)$Depth+sample_data(phy.15)$Temp+sample_data(phy.15)$LocnDescriptor+sample_data(phy.15)$DO_pct+sample_data(phy.15)$Cond+sample_data(phy.15)$Sal+sample_data(phy.15)$DO_mgL+sample_data(phy.15)$"chl-a"+sample_data(phy.15)$Lugols+sample_data(phy.15)$Glut, data=Metadata )
+narrow.perm = adonis(narrow.diss~ sample_data(phy.15)$Depth+sample_data(phy.15)$Temp+sample_data(phy.15)$LocnDescriptor+sample_data(phy.15)$Sal+sample_data(phy.15)$"chl-a", data=Metadata )
 narrow.perm$aov.tab
 
 # see an increase in Location, Depth, and Cond, drop in Temp from both years combined
@@ -290,7 +307,89 @@ narrow.perm$aov.tab
 
 ```
 
-Year 16 all
+
+Year 15 graphs 
+```{r}
+#Location and COnd
+ ggplot(ds.15) +
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Location),  color=(Depth)), size =3) 
+
+ ggplot(ds.16) +
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Location),  color=(Depth)), size =3) 
+  
+ #Location and Depth
+ ggplot(ds.15) +
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Location),  color= Depth), size =3) + facet_wrap(~Location)
+ 
+  ggplot(ds.16) +
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Location),  color= Depth), size =3) + facet_wrap(~Location)
+ 
+  
+  ggplot(ds.15) +
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Location),  color= Temperature), size =3) + facet_wrap(~Location)
+ 
+  ggplot(ds.16) +
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Location),  color= Temperature), size =3) + facet_wrap(~Location)
+  
+  ggplot(ds.15) +
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Location),  color= Sal), size =3) + facet_wrap(~Location)
+```
+
+
+```{r}
+ggplot(ds.16) +
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Location),  color= Sal), size =3) + facet_wrap(~Location) + theme_bw() +  labs(title = "Narrow River NMDS Plot",                                                                        subtitle = "",
+       tag = "Figure 1",
+       x = "NMDS1",
+       y = "NMDS2",
+       shape = "Location",
+       color = "Salinity") + theme(plot.title = element_text(hjust = 0.5))
+      
+ 
+  
+  
+```
+
+```{r}
+narrow.diss = phyloseq::distance(phy.16, method = "bray")
+narrow.perm = adonis(narrow.diss~ sample_data(phy.16)$Depth+sample_data(phy.16)$Temp+sample_data(phy.16)$LocnDescriptor+sample_data(phy.16)$Sal, data=Metadata )
+narrow.perm$aov.tab 
+
+library(kableExtra)
+dt <- narrow.perm$aov.tab
+  dt %>%
+  kbl() %>%
+  kable_styling(bootstrap_options = c("striped",  "hover"))
+  
+   
+    
+
+            
+```
+
+
+
+
+
+
+
+
+
+
+```{r}
+#Shallow river samples seem to be outliers
+ggplot(ds.15) +
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Location),  color= Location), size =3) 
+```
+
+
+
+
+
+
+
+
+Year 16 all drivers
 ```{r}
 narrow.diss = phyloseq::distance(phy.16, method = "bray")
 narrow.perm = adonis(narrow.diss~ sample_data(phy.16)$Depth+sample_data(phy.16)$Temp+sample_data(phy.16)$LocnDescriptor+sample_data(phy.16)$DO_pct+sample_data(phy.16)$Cond+sample_data(phy.16)$Sal+sample_data(phy.16)$DO_mgL+sample_data(phy.16)$Lugols+sample_data(phy.16)$Glut+sample_data(phy.16)$Nanodrop_conc+sample_data(phy.16)$Nanodrop_260280+sample_data(phy.16)$Nanodrop_260230, data=Metadata )
@@ -309,11 +408,49 @@ narrow.perm$aov.tab
 ```
 
 
-Main Drivers Year 16
+Significant Drivers Year 16
 ```{r}
 narrow.diss = phyloseq::distance(phy.16, method = "bray")
-narrow.perm = adonis(narrow.diss~ sample_data(phy.16)$Depth+sample_data(phy.16)$Temp+sample_data(phy.16)$LocnDescriptor+sample_data(phy.16)$DO_pct+sample_data(phy.16)$Cond, data=Metadata )
+narrow.perm = adonis(narrow.diss~ sample_data(phy.16)$Depth+sample_data(phy.16)$Temp+sample_data(phy.16)$LocnDescriptor+sample_data(phy.16)$Sal, data=Metadata )
 narrow.perm$aov.tab
 ```
 
+
+Location, Depth, and Cond 
+
+```{r}
+#Main drivers (Location, Depth, and Cond)
+narrow.diss = phyloseq::distance(phy.15, method = "bray")
+narrow.perm = adonis(narrow.diss~ sample_data(phy.15)$Depth+sample_data(phy.15)$LocnDescriptor+sample_data(phy.15)$Cond, data=Metadata )
+narrow.perm$aov.tab
+
+```
+
+
+Year 16 graphs 
+```{r}
+#Location and COnd
+ ggplot(ds.16) +
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Location),  color=(Cond)), size =3) +
+facet_wrap(~Location)
+  
+  
+```
+
+```{r}
+#Shallow river samples still seem to be outliers, but not as much as year 15
+ggplot(ds.16) +
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Location),  color= Location), size =3) 
+```
+
+
+```{r}
+#Shallow river Nanodrop concentration is low
+ggplot(ds.16) +
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Location),  color= Nanodrop_conc), size =3) + facet_wrap(~Location)
+```
+
+```{r}
+
+```
 
