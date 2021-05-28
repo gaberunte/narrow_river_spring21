@@ -1,12 +1,21 @@
 ---
-title: "Nick's Narrow River Project"
-author: "Gabe Runte"
+title: "Metagenomic Sequencing Analysis of the Santa Barbara Basin "
+author: "Nicholas Haghani"
 date: "5/25/2021"
 output: html_document
+
 ---
+
+
+### Project Summary
+
+In order to study the Aplha diversity of the Santa Barbara Basin, samples from the Basin and Narrow River were taken for two years at varying locations and depths for metagenomic sequencing. 16S rRNA gene copies, richness of taxonomic groups, and dissimilarity Matrices (NMDS) were studied post sequencing to determine the diversity drivers within the ecological community. 
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+
 library(tidyverse)
 library(phyloseq)
 library(metagenomeSeq)
@@ -14,18 +23,94 @@ library(vegan)
 library(here)
 library(janitor)
 library(gridExtra)
+library(kableExtra)
 ```
 
 
-# Some big text
-## some smaller text
-
-some regular sized text
 ```{r}
 load(here("data", "savespace.RData"))
 ```
 
+
+Reading In Amplicon Sequence Variants, Taxonomy, and Metadata
 ```{r}
+asvs_counts = read_tsv(here("data", "ASVs_counts.tsv"))
+rownames(asvs_counts) = asvs_counts$X1
+asvs_counts.renamed = asvs_counts[,2:length(asvs_counts[1,])]
+rownames(asvs_counts.renamed) = rownames(asvs_counts)
+
+
+asvs_taxonomy = read_tsv(here("data", "ASVs_taxonomy.tsv"))
+rownames(asvs_taxonomy) = asvs_taxonomy$X1
+asvs_taxonomy.renamed = asvs_taxonomy[,2:length(asvs_taxonomy[1,])]
+rownames(asvs_taxonomy.renamed) = rownames(asvs_taxonomy)
+
+
+Metadata = read_csv(here("data", "testsamples_df.csv"))
+Metadata.renamed = Metadata[,2:length(Metadata[0,])]
+rownames(Metadata.renamed)<- Metadata$SampleNo
+
+```
+
+Defining Taxonomy table, Metadata and Amplicon Sequence Variants
+```{r}
+phy.otu = otu_table(asvs_counts.renamed, taxa_are_rows = TRUE)
+phy.meta = sample_data(Metadata)
+phy.taxa = tax_table(as.matrix(asvs_taxonomy.renamed))
+sample_names(phy.meta) = Metadata$SampleNo
+narrow.phy = phyloseq(phy.otu, phy.meta, phy.taxa)
+```
+
+
+Creating metagenomic sequencing object using "phyloseq" package
+```{r}
+make_metagenomeSeq = function(physeq) {
+  require("metagenomeSeq")
+  require("phyloseq")
+  if (!taxa_are_rows(physeq)) {
+    physeq <- t(physeq)}
+  OTU = as(otu_table(physeq), "matrix")
+  ADF = AnnotatedDataFrame(data.frame(sample_data(physeq)))
+  TDF = AnnotatedDataFrame(data.frame(OTUname = taxa_names(physeq), row.names = taxa_names(physeq)))
+  MGS = newMRexperiment(counts = OTU, phenoData = ADF, featureData = TDF)
+  MGS = cumNorm(MGS)
+  return(MGS)
+}
+```
+
+Class Diversity Between 2015 and 2016 Samples
+```{r, echo=FALSE, figures-side, fig.show="hold"}
+
+
+plot_bar(phy.15, fill ="class") +ggtitle("2015 Samples") +  labs(tag="Figure 1") + theme( plot.caption = element_text(hjust = 0.5), plot.title = element_text(hjust = 0.5)) +geom_bar(aes(color=class, fill=class), stat="identity", position="stack",)
+
+
+
+plot_bar(phy.16, fill ="class")  +ggtitle("2016 Samples") +  labs(tag="Figure 2") + theme( plot.caption = element_text(hjust = 0.5), plot.title = element_text(hjust = 0.5)) +geom_bar(aes(color=class, fill=class), stat="identity", position="stack",)
+
+
+```
+
+
+
+
+Preparing NMDS 
+```{r error=FALSE, warning=FALSE, message=FALSE}
+invisible({capture.output({
+
+meta.narrow.all<-meta.narrow
+narrow.css.all <-MRcounts(meta.narrow.all, norm= TRUE, log= TRUE)
+narrow.csst.all <- t(narrow.css.all)
+narrow.dist.all <- vegdist(narrow.csst.all, method= "bray", binary=FALSE, diag=TRUE, upper=TRUE)
+set.seed(209)
+narrow.mds.all <- metaMDS(narrow.dist.all, distance = "bray", k=2, trymax = 1000)
+
+})})
+```
+
+
+
+```{r, echo=FALSE}
 
 ds.16 = ds.16 %>% 
   mutate(loc_spaced = NaN)
@@ -34,35 +119,49 @@ for(i in 1:length(ds.16$loc_spaced)){
 }
 
 ggplot(ds.16) +
-  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(loc_spaced),  color= Sal), size =3) + facet_wrap(~loc_spaced) + theme_bw() +  labs(title = "Narrow River NMDS Plot",                                                                        subtitle = "",
-       tag = "Figure 1",
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(loc_spaced),  color= Sal), size =3) + facet_wrap(~loc_spaced) + theme_bw() +  labs(title = "2016 Narrow River NMDS Plot",
+                                                                                                                                    caption = "",    subtitle = "",
+       tag = "Figure 3",
        x = "NMDS1",
        y = "NMDS2",
        shape = "Location",
-       color = "Salinity") + theme(plot.title = element_text(hjust = 0.5))
-      
- 
+       color = "Salinity") +
   
+        theme( plot.caption = element_text(hjust = 0.5), plot.title = element_text(hjust = 0.5))
+
   
 ```
 
+
+
+PERMANOVA dissimilarity table
 ```{r}
 narrow.diss = phyloseq::distance(phy.16, method = "bray")
 narrow.perm = adonis2(narrow.diss~ sample_data(phy.16)$Depth+sample_data(phy.16)$Temp+sample_data(phy.16)$LocnDescriptor+sample_data(phy.16)$Sal, data=Metadata )
 narrow.aov = tibble(narrow.perm)
+```
 
 
-library(kableExtra)
+
+
+##### **Figure 4**
+```{r, echo=FALSE}
 dt <- narrow.perm 
 rownames(dt) <- c("Depth", "Temperature", "Location", "Salinity", "Residuals", "Total")
-colnames(dt)
-    
-    
-  kbl(dt) %>%
-  kable_styling(bootstrap_options = c("striped",  "hover"))
-  
-   
-    
+colnames(dt) <- c("Degrees of Freedom","Sum of Square Roots","R-squared","f-value","p-value")
 
-            
+    
+  kbl(dt, format = "html") %>%
+  kable_styling(bootstrap_options = c("bordered","striped",  "hover")) %>%
+    
+ add_header_above(c( "2016 PERMANOVA Table" = 6)) %>%
+  footnote(number = c("ANOVA table for Depth, Temperature, Location and Salinity from 2016 samples. All results in red have a p-value less than 0.05, showing statistical significance.")) %>%
+  column_spec(1, bold = T) %>%
+  column_spec(6, color = "red") %>%
+  row_spec(5:6,color = "black")%>%
+row_spec(2,color = "black")
+  
 ```
+
+
+

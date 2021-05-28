@@ -15,6 +15,7 @@ library(vegan)
 library(here)
 library(janitor)
 library(gridExtra)
+library(kableExtra)
 ```
 
 Here, we are going to start trying to look at the data and see where that goes. 
@@ -107,20 +108,14 @@ narrow.csst.all <- t(narrow.css.all)
 narrow.dist.all <- vegdist(narrow.csst.all, method= "bray", binary=FALSE, diag=TRUE, upper=TRUE)
 set.seed(209)
 narrow.mds.all <- metaMDS(narrow.dist.all, distance = "bray", k=2, trymax = 1000)
-```
 
-
-```{r prepare and run MDS 2, message=FALSE, echo=false}
 meta.phy.15<-meta_phy.15
 phy.15.css.all <-MRcounts(meta.phy.15, norm= TRUE, log= TRUE)
 phy.15.css.all <- t(phy.15.css.all)
 phy.15.dist.all <- vegdist(phy.15.css.all, method= "bray", binary=FALSE, diag=TRUE, upper=TRUE)
 set.seed(209)
 phy.15.mds.all <- metaMDS(phy.15.dist.all, distance = "bray", k=2, trymax = 1000)
-```
 
-
-```{r prepare and run MDS 3, message=FALSE, echo=false}
 meta.phy.16<-meta_phy.16
 phy.16.css.all <-MRcounts(meta.phy.16, norm= TRUE, log= TRUE)
 phy.16.css.all <- t(phy.16.css.all)
@@ -255,6 +250,7 @@ plot_bar(phy.15, fill ="class") +geom_bar(aes(color=class, fill=class), stat="id
 ```
 
 ```{r}
+plot_bar(phy.15, fill ="class") +geom_bar(aes(color=class, fill=class), stat="identity", position="stack")
 plot_bar(phy.16, fill ="class") + geom_bar(aes(color=class, fill=class), stat="identity", position="stack")
 ```
 
@@ -343,15 +339,8 @@ Year 15 graphs
 
 
 ```{r}
-
-ds.16 = ds.16 %>% 
-  mutate(loc_spaced = NaN)
-for(i in 1:length(ds.16$loc_spaced)){
-  if(ds.16$Location[i]== "ShallowRiver"){ds.16$loc_spaced[i]<- "Shallow River"}else{if(ds.16$Location[i]== "LowerBasin"){ds.16$loc_spaced[i]<- "Lower Basin"} else{ds.16$loc_spaced[i]<- "Upper Basin"}}
-}
-
 ggplot(ds.16) +
-  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(loc_spaced),  color= Sal), size =3) + facet_wrap(~loc_spaced) + theme_bw() +  labs(title = "Narrow River NMDS Plot",                                                                        subtitle = "",
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(Location),  color= Sal), size =3) + facet_wrap(~Location) + theme_bw() +  labs(title = "2016 Narrow River NMDS Plot",                                                                        subtitle = "",
        tag = "Figure 1",
        x = "NMDS1",
        y = "NMDS2",
@@ -372,12 +361,13 @@ narrow.aov = tibble(narrow.perm)
 library(kableExtra)
 dt <- narrow.perm 
 rownames(dt) <- c("Depth", "Temperature", "Location", "Salinity", "Residuals", "Total")
-colnames(dt)
+colnames(dt) <- c("Degrees of Freedom","Sum of Square Roots","R-squared","f-value","p-value")
+
     
-    
-  kbl(dt) %>%
-  kable_styling(bootstrap_options = c("striped",  "hover"))
-  
+  kbl(dt, format = "html", caption = "Demo Table") %>%
+  kable_styling(bootstrap_options = c("striped",  "hover")) %>%
+ add_header_above(c(" ", "Group 1" = 5)) %>%
+  add_footnote(c("table footnote"))
    
     
 
