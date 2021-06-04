@@ -9,7 +9,7 @@ output: html_document
 
 ### Project Summary
 
-In order to study the Aplha diversity of the Narrow River in Rhode Island, samples from the River and Basin were taken for two years at varying locations and depths for metagenomic sequencing. 16S rRNA gene copies, richness of taxonomic groups, and dissimilarity Matrices (NMDS) were studied post sequencing to determine the diversity drivers within the ecological community. This project was completed in RStudio with traceable steps and workflow from R project based navigation.
+In order to study the Alpha diversity of the Narrow River in Rhode Island, samples from the River and Basin were taken for two years at varying locations and depths for metabarcode sequencing. 16S rRNA gene copies, richness of taxonomic groups, and dissimilarity Matrices (NMDS) were studied post sequencing to determine the diversity drivers within the ecological community. This project was completed in RStudio with traceable steps and workflow from R project based navigation.
 
 
 ```{r setup, include=FALSE}
