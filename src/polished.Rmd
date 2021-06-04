@@ -124,7 +124,9 @@ for(i in 1:length(ds.15$loc_spaced)){
 }
 
 ggplot(ds.15) +
-  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(loc_spaced),  color= Sal), size =3) + facet_wrap(~loc_spaced) + theme_bw() +  labs(title = "2015 Narrow River NMDS Plot",
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(loc_spaced),  color= round(Sal, 0)), size =3) + facet_wrap(~loc_spaced) + theme_bw() +  
+  scale_color_gradient(breaks= c(20,22,24,26,28, 30)) +
+  labs(title = "2015 Narrow River NMDS Plot",
                                                                                                                                     caption = "",    subtitle = "",
        tag = "Figure 2a",
        x = "NMDS1",
@@ -143,7 +145,7 @@ for(i in 1:length(ds.16$loc_spaced)){
 }
 
 ggplot(ds.16) +
-  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(loc_spaced),  color= Sal), size =3) + facet_wrap(~loc_spaced) + theme_bw() +  labs(title = "2016 Narrow River NMDS Plot",
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(loc_spaced),  color= round(Sal, 0)), size =3) + facet_wrap(~loc_spaced) + theme_bw() +  labs(title = "2016 Narrow River NMDS Plot",
                                                                                                                                     caption = "",    subtitle = "",
        tag = "Figure 2b",
        x = "NMDS1",
