@@ -1,5 +1,5 @@
 ---
-title: "Metagenomic Sequencing Analysis of the Santa Barbara Basin "
+title: "Metagenomic Sequencing Analysis of Microbial Communites Within the Rhode Island Narrow River"
 author: "Nicholas Haghani"
 date: "5/25/2021"
 output: html_document
@@ -9,7 +9,7 @@ output: html_document
 
 ### Project Summary
 
-In order to study the Aplha diversity of the Santa Barbara Basin, samples from the Basin and Narrow River were taken for two years at varying locations and depths for metagenomic sequencing. 16S rRNA gene copies, richness of taxonomic groups, and dissimilarity Matrices (NMDS) were studied post sequencing to determine the diversity drivers within the ecological community. 
+In order to study the Aplha diversity of the Narrow River in Rhode Island, samples from the River and Basin were taken for two years at varying locations and depths for metagenomic sequencing. 16S rRNA gene copies, richness of taxonomic groups, and dissimilarity Matrices (NMDS) were studied post sequencing to determine the diversity drivers within the ecological community. This project was completed in RStudio with traceable steps and workflow from R project based navigation.
 
 
 ```{r setup, include=FALSE}
@@ -24,29 +24,33 @@ library(here)
 library(janitor)
 library(gridExtra)
 library(kableExtra)
+library(ggpubr)
+library(cowplot)
+
+
 ```
 
 
 ```{r}
-load(here("data", "savespace.RData"))
+load(here("metagenomic data", "savespace.RData"))
 ```
 
 
 Reading In Amplicon Sequence Variants, Taxonomy, and Metadata
 ```{r}
-asvs_counts = read_tsv(here("data", "ASVs_counts.tsv"))
+asvs_counts = read_tsv(here("metagenomic data", "ASVs_counts.tsv"))
 rownames(asvs_counts) = asvs_counts$X1
 asvs_counts.renamed = asvs_counts[,2:length(asvs_counts[1,])]
 rownames(asvs_counts.renamed) = rownames(asvs_counts)
 
 
-asvs_taxonomy = read_tsv(here("data", "ASVs_taxonomy.tsv"))
+asvs_taxonomy = read_tsv(here("metagenomic data", "ASVs_taxonomy.tsv"))
 rownames(asvs_taxonomy) = asvs_taxonomy$X1
 asvs_taxonomy.renamed = asvs_taxonomy[,2:length(asvs_taxonomy[1,])]
 rownames(asvs_taxonomy.renamed) = rownames(asvs_taxonomy)
 
 
-Metadata = read_csv(here("data", "testsamples_df.csv"))
+Metadata = read_csv(here("metagenomic data", "testsamples_df.csv"))
 Metadata.renamed = Metadata[,2:length(Metadata[0,])]
 rownames(Metadata.renamed)<- Metadata$SampleNo
 
@@ -82,11 +86,12 @@ Class Diversity Between 2015 and 2016 Samples
 ```{r, echo=FALSE, figures-side, fig.show="hold"}
 
 
-plot_bar(phy.15, fill ="class") +ggtitle("2015 Samples") +  labs(tag="Figure 1") + theme( plot.caption = element_text(hjust = 0.5), plot.title = element_text(hjust = 0.5)) +geom_bar(aes(color=class, fill=class), stat="identity", position="stack",)
+plot_bar(phy.15, fill ="class") +ggtitle("2015 Samples") +  labs(tag="Figure 1a") + theme( plot.caption = element_text(hjust = 0.5), plot.title = element_text(hjust = 0.5)) +geom_bar(aes(color=class, fill=class), stat="identity", position="stack",)
 
 
 
-plot_bar(phy.16, fill ="class")  +ggtitle("2016 Samples") +  labs(tag="Figure 2") + theme( plot.caption = element_text(hjust = 0.5), plot.title = element_text(hjust = 0.5)) +geom_bar(aes(color=class, fill=class), stat="identity", position="stack",)
+plot_bar(phy.16, fill ="class")  +ggtitle("2016 Samples") +  labs(tag="Figure 1b") + theme( plot.caption = element_text(hjust = 0.5), plot.title = element_text(hjust = 0.5)) +geom_bar(aes(color=class, fill=class), stat="identity", position="stack",)
+
 
 
 ```
@@ -110,9 +115,28 @@ narrow.mds.all <- metaMDS(narrow.dist.all, distance = "bray", k=2, trymax = 1000
 
 
 
-```{r, echo=FALSE}
+```{r , echo=FALSE}
 
-ds.16 = ds.16 %>% 
+ds.15 = ds.15 %>% 
+  mutate(loc_spaced = NaN)
+for(i in 1:length(ds.15$loc_spaced)){
+  if(ds.15$Location[i]== "ShallowRiver"){ds.15$loc_spaced[i]<- "Shallow River"}else{if(ds.15$Location[i]== "LowerBasin"){ds.15$loc_spaced[i]<- "Lower Basin"} else{ds.15$loc_spaced[i]<- "Upper Basin"}}
+}
+
+ggplot(ds.15) +
+  geom_point(aes(NMDS1, NMDS2,  shape= as.factor(loc_spaced),  color= Sal), size =3) + facet_wrap(~loc_spaced) + theme_bw() +  labs(title = "2015 Narrow River NMDS Plot",
+                                                                                                                                    caption = "",    subtitle = "",
+       tag = "Figure 2a",
+       x = "NMDS1",
+       y = "NMDS2",
+       shape = "Location",
+       color = "Salinity") +
+  
+        theme( plot.caption = element_text(hjust = 0.5), plot.title = element_text(hjust = 0.5))
+
+
+
+ ds.16 = ds.16 %>% 
   mutate(loc_spaced = NaN)
 for(i in 1:length(ds.16$loc_spaced)){
   if(ds.16$Location[i]== "ShallowRiver"){ds.16$loc_spaced[i]<- "Shallow River"}else{if(ds.16$Location[i]== "LowerBasin"){ds.16$loc_spaced[i]<- "Lower Basin"} else{ds.16$loc_spaced[i]<- "Upper Basin"}}
@@ -121,7 +145,7 @@ for(i in 1:length(ds.16$loc_spaced)){
 ggplot(ds.16) +
   geom_point(aes(NMDS1, NMDS2,  shape= as.factor(loc_spaced),  color= Sal), size =3) + facet_wrap(~loc_spaced) + theme_bw() +  labs(title = "2016 Narrow River NMDS Plot",
                                                                                                                                     caption = "",    subtitle = "",
-       tag = "Figure 3",
+       tag = "Figure 2b",
        x = "NMDS1",
        y = "NMDS2",
        shape = "Location",
@@ -129,24 +153,29 @@ ggplot(ds.16) +
   
         theme( plot.caption = element_text(hjust = 0.5), plot.title = element_text(hjust = 0.5))
 
-  
+
+
 ```
 
 
 
-PERMANOVA dissimilarity table
+PERMANOVA dissimilarity tables
 ```{r}
+narrow.diss = phyloseq::distance(phy.15, method = "bray")
+narrow.perm.15 = adonis2(narrow.diss~ sample_data(phy.15)$Depth+sample_data(phy.15)$Temp+sample_data(phy.15)$LocnDescriptor+sample_data(phy.15)$Sal, data=Metadata )
+narrow.aov = tibble(narrow.perm.15)
+
 narrow.diss = phyloseq::distance(phy.16, method = "bray")
-narrow.perm = adonis2(narrow.diss~ sample_data(phy.16)$Depth+sample_data(phy.16)$Temp+sample_data(phy.16)$LocnDescriptor+sample_data(phy.16)$Sal, data=Metadata )
-narrow.aov = tibble(narrow.perm)
+narrow.perm.16 = adonis2(narrow.diss~ sample_data(phy.16)$Depth+sample_data(phy.16)$Temp+sample_data(phy.16)$LocnDescriptor+sample_data(phy.16)$Sal, data=Metadata )
+narrow.aov = tibble(narrow.perm.16)
 ```
 
 
 
 
-##### **Figure 4**
+##### **Figure 3a**
 ```{r, echo=FALSE}
-dt <- narrow.perm 
+dt <- narrow.perm.15 
 rownames(dt) <- c("Depth", "Temperature", "Location", "Salinity", "Residuals", "Total")
 colnames(dt) <- c("Degrees of Freedom","Sum of Square Roots","R-squared","f-value","p-value")
 
@@ -154,13 +183,29 @@ colnames(dt) <- c("Degrees of Freedom","Sum of Square Roots","R-squared","f-valu
   kbl(dt, format = "html") %>%
   kable_styling(bootstrap_options = c("bordered","striped",  "hover")) %>%
     
- add_header_above(c( "2016 PERMANOVA Table" = 6)) %>%
-  footnote(number = c("ANOVA table for Depth, Temperature, Location and Salinity from 2016 samples. All results in red have a p-value less than 0.05, showing statistical significance.")) %>%
+ add_header_above(c( "2015 PERMANOVA Table" = 6)) %>%
+  footnote(number = c("ANOVA table for Depth, Temperature, Location and Salinity from 2015 samples. All results in red have a p-value less than 0.05, showing statistical significance.")) %>%
   column_spec(1, bold = T) %>%
   column_spec(6, color = "red") %>%
   row_spec(5:6,color = "black")%>%
 row_spec(2,color = "black")
-  
+```
+
+##### **Figure 3b**
+```{r, echo=FALSE}
+ct <- narrow.perm.16
+rownames(ct) <- c("Depth", "Temperature", "Location", "Salinity", "Residuals", "Total")
+colnames(ct) <- c("Degrees of Freedom","Sum of Square Roots","R-squared","f-value","p-value")
+
+    
+  kbl(ct, format = "html") %>%
+  kable_styling(bootstrap_options = c("bordered","striped",  "hover")) %>%
+    
+ add_header_above(c( "2016 PERMANOVA Table" = 6)) %>%
+  footnote(number = c("ANOVA table for Depth, Temperature, Location and Salinity from 2016 samples. All results in red have a p-value less than 0.05, showing statistical significance.")) %>%
+  column_spec(1, bold = T) %>%
+  column_spec(6, color = "red") %>%
+  row_spec(5:6,color = "black")
 ```
 
 
